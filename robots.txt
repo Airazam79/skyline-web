@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /_fuentes/
+Disallow: /_para_borrar/
+
+Sitemap: https://www.skylineapartmentsmalaga.com/sitemap.xml
