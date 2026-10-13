@@ -369,7 +369,7 @@ html:not(.js) .buscador-pasos .paso { display: none; }
 /* Ficha */
 .ficha main { background: var(--cal); }
 .ficha-hero { position: relative; padding: 28px 0 56px; overflow: hidden; }
-.ficha-suelo { position: absolute; inset: 0; background: var(--suelo) 0 0 / 96px 96px; opacity: .09; -webkit-mask-image: linear-gradient(90deg, #000 0%, transparent 70%); mask-image: linear-gradient(90deg, #000 0%, transparent 70%); }
+.ficha-suelo { display: none; position: absolute; inset: 0; background: var(--suelo) 0 0 / 96px 96px; opacity: .09; -webkit-mask-image: linear-gradient(90deg, #000 0%, transparent 70%); mask-image: linear-gradient(90deg, #000 0%, transparent 70%); }
 .ficha-hero-int { position: relative; display: grid; gap: 36px; grid-template-columns: 1fr; align-items: center; }
 @media (min-width: 980px) { .ficha-hero-int { grid-template-columns: 5fr 7fr; gap: 64px; } }
 .migas { font-size: .88rem; color: var(--gris); margin-bottom: 28px; }
@@ -476,3 +476,4 @@ html:not(.js) .persiana, html:not(.js) .pausa, html:not(.js) [data-flechas], htm
 @media (max-width: 600px) { .tile-apodo { display: none; } .tile-nombre { font-size: .9rem; } }
 .tile { height: 100%; }
 .mapa-origen.abajo { transform: translate(-50%, 90%); }
+.con-hidraulico .ficha-suelo { display: block; }
