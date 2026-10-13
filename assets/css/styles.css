@@ -475,3 +475,8 @@ html:not(.js) .persiana, html:not(.js) .pausa, html:not(.js) [data-flechas], htm
 .tile { height: 100%; }
 .mapa-origen.abajo { transform: translate(-50%, 90%); }
 .con-hidraulico .ficha-suelo { display: block; }
+.condiciones { margin: 0; border-top: 1px solid var(--linea); }
+.condiciones div { display: grid; grid-template-columns: 1fr; gap: 2px 24px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+@media (min-width: 640px) { .condiciones div { grid-template-columns: 190px 1fr; } }
+.condiciones dt { font-weight: 700; color: var(--tinta); }
+.condiciones dd { margin: 0; color: var(--gris); }
