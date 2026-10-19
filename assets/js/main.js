@@ -352,6 +352,20 @@
   var hv = $(".hero-video");
   if (hv && reducido) { hv.removeAttribute("autoplay"); hv.pause(); }
 
+  /* Conversiones: clic en reservar, teléfono o correo. Solo se envía si Analytics está cargado (cookies aceptadas) */
+  d.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]"); if (!a || typeof window.gtag !== "function") return;
+    var href = a.getAttribute("href"), zona = a.closest(".caja-reserva") ? "ficha" : a.closest("header") ? "cabecera" : a.closest(".final, .final-apts") ? "final" : "otro";
+    if (/living4malaga\.com/.test(href) && /utm_content=/.test(href)) {
+      var apt = (href.match(/utm_content=([^&]+)/) || [])[1] || "edificio";
+      window.gtag("event", "clic_reservar", { apartamento: apt, zona: zona, idioma: lang, transport_type: "beacon" });
+    } else if (/^tel:/.test(href)) {
+      window.gtag("event", "clic_telefono", { zona: zona, idioma: lang, transport_type: "beacon" });
+    } else if (/^mailto:/.test(href)) {
+      window.gtag("event", "clic_correo", { zona: zona, idioma: lang, transport_type: "beacon" });
+    }
+  }, true);
+
   /* Consentimiento de cookies: no se carga ninguna medición hasta que se acepta */
   var med = cfg.medicion || {};
   if (!med.ga4 && !med.pixel) return;
