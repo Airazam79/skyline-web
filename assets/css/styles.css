@@ -554,7 +554,13 @@ html:not(.js) .persiana, html:not(.js) .pausa, html:not(.js) [data-flechas], htm
 @media (min-width: 1100px) { .guia-apts.tres { grid-template-columns: repeat(3, 1fr); gap: 32px; } }
 .guia-tabla.cols td, .guia-tabla.cols tbody th { width: auto; }
 .guia-tabla.cols tbody th { white-space: nowrap; }
-.guia-tabla.cols td:last-child { white-space: nowrap; color: var(--cobre-oscuro); font-weight: 700; }
+.guia-tabla.resaltar td:last-child { white-space: nowrap; color: var(--cobre-oscuro); font-weight: 700; }
+.guia-tabla.cols thead th:first-child { width: 22%; }
 .guia-nota { margin-top: 16px; font-size: .9rem; color: var(--gris); max-width: 80ch; }
-@media (max-width: 760px) { .guia-tabla.cols tbody th, .guia-tabla.cols td:last-child { white-space: normal; } }
+@media (max-width: 760px) { .guia-tabla.cols tbody th, .guia-tabla.resaltar td:last-child { white-space: normal; } }
 .pie li a { display: inline-block; padding-block: 3px; }
+@media (min-width: 900px) {
+  .guia-apts.uno { grid-template-columns: 1fr; }
+  .guia-apts.uno .guia-apt { flex-direction: row; }
+  .guia-apts.uno .guia-apt-foto { flex: 0 0 55%; aspect-ratio: auto; min-height: 420px; }
+}
