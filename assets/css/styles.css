@@ -564,3 +564,9 @@ html:not(.js) .persiana, html:not(.js) .pausa, html:not(.js) [data-flechas], htm
   .guia-apts.uno .guia-apt { flex-direction: row; }
   .guia-apts.uno .guia-apt-foto { flex: 0 0 55%; aspect-ratio: auto; min-height: 420px; }
 }
+.guia-galeria { display: grid; gap: 14px; grid-template-columns: repeat(2, 1fr); margin-top: 32px; }
+@media (min-width: 900px) { .guia-galeria { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+.guia-galeria figure { margin: 0; }
+.guia-galeria img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.guia-galeria figcaption { font-size: .85rem; color: var(--gris); margin-top: 6px; line-height: 1.4; }
+.guia-reserva-nota { font-size: .9rem; color: var(--gris); margin: 6px 0 0; max-width: 46ch; }
