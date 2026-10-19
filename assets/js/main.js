@@ -373,8 +373,8 @@
   if (estado === "si") { cargar(); return; }
   if (estado === "no") return;
   var t = lang === "en"
-    ? { txt: "We use analytics and advertising cookies only if you accept them. They help us see which pages are useful.", si: "Accept", no: "Reject", mas: "Cookie policy", url: "legal-notice.html#cookies" }
-    : { txt: "Usamos cookies de analítica y publicidad solo si las aceptas. Nos ayudan a saber qué páginas resultan útiles.", si: "Aceptar", no: "Rechazar", mas: "Política de cookies", url: "aviso-legal.html#cookies" };
+    ? { txt: (med.pixel ? "We use analytics and advertising cookies" : "We use analytics cookies") + " only if you accept them. They help us see which pages are useful.", si: "Accept", no: "Reject", mas: "Cookie policy", url: "legal-notice.html#cookies" }
+    : { txt: (med.pixel ? "Usamos cookies de analítica y publicidad" : "Usamos cookies de analítica") + " solo si las aceptas. Nos ayudan a saber qué páginas resultan útiles.", si: "Aceptar", no: "Rechazar", mas: "Política de cookies", url: "aviso-legal.html#cookies" };
   var caja = d.createElement("div");
   caja.className = "cookies"; caja.setAttribute("role", "region"); caja.setAttribute("aria-label", "Cookies");
   caja.innerHTML = "<p>" + t.txt + ' <a href="' + t.url + '">' + t.mas + '</a></p><div class="acciones"><button class="boton linea" data-v="no">' + t.no + '</button><button class="boton" data-v="si">' + t.si + "</button></div>";
