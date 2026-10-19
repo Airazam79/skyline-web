@@ -574,10 +574,12 @@ html:not(.js) .persiana, html:not(.js) .pausa, html:not(.js) [data-flechas], htm
 .ideas { padding: clamp(64px, 9vw, 120px) 0; background: var(--cal); }
 .ideas-lista { list-style: none; padding: 0; margin: 40px 0 0; display: grid; gap: 20px; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .ideas-lista { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .ideas-lista { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1100px) { .ideas-lista { grid-template-columns: repeat(6, 1fr); } .ideas-lista > li { grid-column: span 2; } .ideas-lista > li:nth-child(4):nth-last-child(2), .ideas-lista > li:nth-child(5):last-child { grid-column: span 3; } }
+@media (min-width: 640px) and (max-width: 1099px) { .ideas-lista > li:last-child:nth-child(odd) { grid-column: 1 / -1; } .ideas-lista > li:last-child:nth-child(odd) .idea img { aspect-ratio: 21 / 9; } }
 .idea { display: flex; flex-direction: column; height: 100%; background: var(--blanco); border: 1px solid var(--linea); color: var(--tinta); text-decoration: none; transition: border-color .25s; }
 .idea:hover { border-color: var(--cobre); }
 .idea img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
 .idea-txt { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px 22px; }
 .idea-txt strong { font: 400 1.35rem/1.25 var(--serif); color: var(--petroleo); }
 .idea-txt span { color: var(--gris); font-size: .95rem; }
+@media (min-width: 1100px) { .ideas-lista > li:nth-child(4):nth-last-child(2) .idea img, .ideas-lista > li:nth-child(5):last-child .idea img { aspect-ratio: 2 / 1; } }
