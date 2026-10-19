@@ -495,7 +495,7 @@ html:not(.js) .persiana, html:not(.js) .pausa, html:not(.js) [data-flechas], htm
 .guia-hero .ficha-hero-int { display: flex; flex-direction: column; gap: 28px; }
 .guia-hero-foto { aspect-ratio: 2 / 1; overflow: hidden; background: var(--linea); margin: 0 calc(-1 * var(--gutter)); }
 .guia-hero-foto img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; }
-@media (max-width: 959px) { .guia-hero { padding-top: 0; } .guia-hero .ficha-hero-int { gap: 16px; } .guia-hero .migas { display: none; } .guia-hero h1 { font-size: 2.15rem; } .guia-hero .apodo { margin-bottom: .6em; } .guia-hero .respuesta { font-size: 1.02rem; margin-bottom: 18px; } }
+@media (max-width: 959px) { .guia-hero { padding-top: 0; } .guia-hero-foto { aspect-ratio: auto; height: 50vw; min-height: 180px; } .guia-hero .ficha-hero-int { gap: 16px; } .guia-hero .migas { display: none; } .guia-hero h1 { font-size: 2.15rem; } .guia-hero .apodo { margin-bottom: .6em; } .guia-hero .respuesta { font-size: 1.02rem; margin-bottom: 18px; } }
 @media (min-width: 960px) {
   .guia-hero .ficha-hero-int { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; }
   .guia-hero-foto { order: 2; aspect-ratio: 4 / 3; margin: 0; }
