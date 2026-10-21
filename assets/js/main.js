@@ -1,8 +1,10 @@
-/* Skyline Apartments. Script clásico (sin módulos ni fetch) para que funcione abriendo los HTML desde el disco. */
+/* Script de la web del edificio. Clásico (sin módulos ni fetch) para que funcione abriendo los HTML desde el disco.
+   generar_web.py lo copia a assets/js/ y rellena CONF con los datos de contenido.py (JS_GLOBAL, BUSCADOR, CLAVE_COOKIES). */
 (function () {
   "use strict";
   var d = document;
-  var cfg = window.SKYLINE || {};
+  var CONF = {"global": "SKYLINE", "cookies": "skyline-cookies", "reglas": {"1": {"cuatro": "skyline-triplex"}, "2": {"jacuzzi-fuera": "skyline-rooftop-jacuzzi", "jacuzzi-dentro": "skyline-jacuzzi"}}, "alternativa": {"skyline-2": "skyline-3", "skyline-3": "skyline-2", "skyline-jacuzzi": "skyline-rooftop-jacuzzi", "skyline-rooftop-jacuzzi": "skyline-jacuzzi", "skyline-triplex": null}};
+  var cfg = window[CONF.global] || {};
   var lang = cfg.lang === "en" ? "en" : "es";
   var reducido = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var $ = function (s, c) { return (c || d).querySelector(s); };
@@ -135,7 +137,7 @@
     var datos = JSON.parse($(".buscador-datos", bus).textContent);
     var pasos = $$(".paso", bus), res = $(".resultado", bus), otra = $(".otra-vez", bus);
     var resp = {};
-    var alternativa = { "skyline-2": "skyline-3", "skyline-3": "skyline-2", "skyline-jacuzzi": "skyline-rooftop-jacuzzi", "skyline-rooftop-jacuzzi": "skyline-jacuzzi", "skyline-triplex": null };
+    var alternativa = CONF.alternativa, reglas = CONF.reglas;
     var paso = function (n) { return pasos[n - 1]; };
     var mostrarPaso = function (n) { var p = paso(n); p.hidden = false; p.classList.add("activo"); var b = $(".op", p); if (b) b.focus({ preventScroll: true }); };
     var resultado = function (slug) {
@@ -155,13 +157,11 @@
         for (var k = p + 1; k <= pasos.length; k++) { paso(k).hidden = true; paso(k).classList.remove("hecho"); $$(".op", paso(k)).forEach(function (o) { o.removeAttribute("aria-pressed"); }); }
         res.hidden = true; otra.hidden = true;
         resp[p] = v;
-        if (p === 1) { if (v === "cuatro") resultado("skyline-triplex"); else mostrarPaso(2); }
-        else if (p === 2) {
-          if (v === "jacuzzi-fuera") resultado("skyline-rooftop-jacuzzi");
-          else if (v === "jacuzzi-dentro") resultado("skyline-jacuzzi");
-          else if (v === "trabajo") resultado("skyline-3");
-          else mostrarPaso(3);
-        } else if (p === 3) resultado(v);
+        // Una respuesta con regla lleva directa a su apartamento; sin regla, a la pregunta siguiente; en la última, el valor es el apartamento
+        var destino = (reglas[p] || {})[v];
+        if (destino) resultado(destino);
+        else if (p < pasos.length) mostrarPaso(p + 1);
+        else resultado(v);
       });
     });
     otra.addEventListener("click", function () {
@@ -170,7 +170,7 @@
     });
   }
 
-  /* Mapa: ruta real desde Calle Nueva 10 hasta el sitio elegido */
+  /* Mapa: ruta real desde la puerta del edificio hasta el sitio elegido */
   $$("[data-mapa]").forEach(function (m) {
     var datos = JSON.parse($(".mapa-datos", m).textContent);
     var ruta = $(".mp-ruta", m), sombra = $(".mp-ruta-sombra", m), dato = $(".mapa-dato", m);
@@ -196,7 +196,7 @@
       // Globo en píxeles: encima del destino; si no cabe o tapa la puerta, debajo. Siempre dentro del plano.
       var lz = dato.parentNode, W = lz.clientWidth, H = lz.clientHeight;
       var px = p.xy[0] / vb.width * W, py = p.xy[1] / vb.height * H;
-      // Zona que no se puede tapar: la etiqueta «Calle Nueva 10» y el punto de la puerta
+      // Zona que no se puede tapar: la etiqueta de la dirección y el punto de la puerta
       var lr = lz.getBoundingClientRect();
       // Si la etiqueta de la puerta tapa el destino, pasa debajo del punto
       etiqueta.classList.remove("abajo");
@@ -278,7 +278,9 @@
   $$("[data-ir-punto]").forEach(function (b) {
     b.addEventListener("click", function () {
       var m = $("[data-mapa]"); if (!m) return;
-      m.scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "center" });
+      // En móvil el bloque del mapa es más alto que la pantalla: se lleva a la vista el plano, no el bloque entero
+      var lz = $(".mapa-lienzo", m) || m;
+      lz.scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "start" });
       setTimeout(function () { if (m.elegir) m.elegir(b.getAttribute("data-ir-punto"), true); }, reducido ? 0 : 500);
     });
   });
@@ -305,6 +307,9 @@
   $$("[data-flechas]").forEach(function (f) {
     var sec = f.closest("section"), c = sec && $("[data-arrastre]", sec);
     if (!c) return;
+    // Sin nada que desplazar (todo cabe), las flechas sobran
+    var ver = function () { f.hidden = c.scrollWidth <= c.clientWidth + 2; };
+    ver(); window.addEventListener("resize", ver);
     $$("button", f).forEach(function (b) {
       b.addEventListener("click", function () {
         var item = c.firstElementChild, paso = item ? item.getBoundingClientRect().width + 24 : c.clientWidth * 0.8;
@@ -316,7 +321,10 @@
   /* Galería de la ficha */
   var gd = $("#galeria-datos"), visor = $("dialog.visor");
   if (gd && visor) {
-    var fotos = JSON.parse(gd.textContent), img = $("img", visor), pie = $("figcaption", visor), i = 0, origen = null;
+    var fotos = JSON.parse(gd.textContent), pie = $("figcaption", visor), i = 0, origen = null;
+    // La imagen del visor se crea aquí: en el HTML, una <img> sin src no es válida
+    var img = $("img", visor) || pie.parentNode.insertBefore(d.createElement("img"), pie);
+    img.alt = "";
     var mostrar = function (n) {
       i = (n + fotos.length) % fotos.length; img.src = fotos[i].src; img.alt = fotos[i].alt;
       pie.textContent = fotos[i].alt + " (" + (i + 1) + "/" + fotos.length + ")";
@@ -369,7 +377,7 @@
   /* Consentimiento de cookies: no se carga ninguna medición hasta que se acepta */
   var med = cfg.medicion || {};
   if (!med.ga4 && !med.pixel) return;
-  var CLAVE = "skyline-cookies";
+  var CLAVE = CONF.cookies;
   var leer = function () { try { return localStorage.getItem(CLAVE); } catch (e) { return null; } };
   var guardar = function (v) { try { localStorage.setItem(CLAVE, v); } catch (e) {} };
   var cargar = function () {
