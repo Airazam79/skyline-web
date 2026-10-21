@@ -429,7 +429,7 @@ html:not(.js) .buscador-pasos .paso { display: none; }
 .barra-reserva > span { display: flex; align-items: center; gap: 10px; font: 400 1.1rem var(--serif); }
 .barra-reserva .boton { padding: 11px 22px; }
 @media (min-width: 980px) { .barra-reserva { display: none; } }
-@media (max-width: 979px) { body.ficha, body.guia { padding-bottom: 84px; } }
+@media (max-width: 979px) { body.ficha, body.guia, body.inicio, body.pagina-faq, body.pagina-ubicacion { padding-bottom: 84px; } }
 .barra-reserva > span { min-width: 0; line-height: 1.2; }
 .barra-reserva .boton { white-space: nowrap; flex: none; }
 
@@ -660,3 +660,11 @@ p, li { text-wrap: pretty; }
   .guia-tabla.apilar td::before { content: attr(data-label); font-weight: 700; color: var(--tinta); }
 }
 .migas ol { align-items: center; }
+/* Portada en móvil: los botones justo después del título, antes del párrafo largo (que se vean sin bajar) */
+@media (max-width: 700px) {
+  .hero-texto { display: flex; flex-direction: column; }
+  .hero-texto h1 { order: 0; }
+  .hero-texto .acciones { order: 1; margin-bottom: 10px; }
+  .hero-texto .precio-directo { order: 2; }
+  .hero-texto .entradilla { order: 3; margin-top: 18px; }
+}
