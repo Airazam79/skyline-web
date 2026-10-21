@@ -644,3 +644,19 @@ body:has(.barra-reserva.visible) .cookies { bottom: calc(84px + env(safe-area-in
 /* Sin palabras sueltas en la última línea */
 h1, h2, h3, summary, .tf-nombre, .idea-txt strong, .enlace-guia a { text-wrap: balance; }
 p, li { text-wrap: pretty; }
+/* Respuesta directa al principio de fichas y ubicación (la frase que citan buscadores e IA) */
+.ficha .ficha-hero .respuesta { font-size: 1rem; line-height: 1.55; color: var(--gris); max-width: 48ch; margin: 0 0 18px; }
+.pagina-cab .respuesta { font-size: 1.15rem; line-height: 1.6; max-width: 62ch; margin: 0 0 24px; }
+
+.oscuro .enlace-guia a { color: var(--arena); }   /* contraste AA sobre el fondo petróleo */
+/* Tablas de 4 o más columnas en móvil: una tarjeta por fila */
+@media (max-width: 600px) {
+  .guia-tabla.apilar { min-width: 0; }
+  .guia-tabla.apilar thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .guia-tabla.apilar, .guia-tabla.apilar tbody, .guia-tabla.apilar tr, .guia-tabla.apilar th, .guia-tabla.apilar td { display: block; width: auto; }
+  .guia-tabla.apilar tr { border-bottom: 1px solid var(--linea); padding: 12px 0; }
+  .guia-tabla.apilar tbody th { padding: 0 12px 6px; min-width: 0; white-space: normal; border: 0; }
+  .guia-tabla.apilar td { display: grid; grid-template-columns: 7.5em 1fr; gap: 10px; padding: 3px 12px; border: 0; white-space: normal; }
+  .guia-tabla.apilar td::before { content: attr(data-label); font-weight: 700; color: var(--tinta); }
+}
+.migas ol { align-items: center; }
