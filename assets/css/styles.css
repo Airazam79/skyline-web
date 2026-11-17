@@ -379,6 +379,7 @@ html:not(.js) .buscador-pasos .paso { display: none; }
 .migas a { color: var(--gris); }
 .ficha-baldosa { width: 76px; height: 76px; margin-bottom: 22px; animation: girar 1.2s var(--ease) both; }
 .ficha-hero h1 { font-size: clamp(2.8rem, 6.6vw, 5.4rem); line-height: .98; letter-spacing: -.03em; margin-bottom: .1em; }
+.h1-ficha { display: block; font: 700 .82rem/1.4 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); margin: .9em 0 .5em; }
 .ficha-hero .lema { font-size: 1.2rem; max-width: 40ch; }
 .ficha-hero-foto { position: relative; padding: 0; border: 0; background: var(--linea); cursor: zoom-in; overflow: hidden; aspect-ratio: 4 / 3; display: block; width: 100%; }
 .ficha-hero-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
