@@ -21,7 +21,8 @@
       cab.classList.toggle("transparente", !abajo);
     };
     window.addEventListener("scroll", revisar, { passive: true });
-    revisar();
+    // Primera comprobación en el siguiente fotograma: leer la altura del hero al cargar forzaba un reflow
+    requestAnimationFrame(revisar);
   }
 
   /* Menú móvil */
@@ -139,13 +140,17 @@
     var resp = {};
     var alternativa = CONF.alternativa, reglas = CONF.reglas;
     var paso = function (n) { return pasos[n - 1]; };
-    var mostrarPaso = function (n) { var p = paso(n); p.hidden = false; p.classList.add("activo"); var b = $(".op", p); if (b) b.focus({ preventScroll: true }); };
+    // Opciones condicionadas: data-si="1!=seis" (oculta si en el paso 1 se eligió seis) o "2=suite" (solo si en el 2 se eligió suite)
+    var cumple = function (c) { if (!c) return true; var m = c.match(/^(\d)(!?=)(.+)$/); if (!m) return true; var dentro = m[3].split(",").indexOf(resp[m[1]]) >= 0; return m[2] === "=" ? dentro : !dentro; };
+    var mostrarPaso = function (n) { var p = paso(n); $$(".op", p).forEach(function (o) { o.parentNode.hidden = !cumple(o.getAttribute("data-si")); }); p.hidden = false; p.classList.add("activo"); var vis = $$(".op", p).filter(function (o) { return !o.parentNode.hidden; }); if (vis[0]) vis[0].focus({ preventScroll: true }); };
     var resultado = function (slug) {
       var r = datos[slug], alt = alternativa[slug];
       var html = '<div>' + r.b + '</div><div><p class="res-pre">' + res.getAttribute("data-txt-res") + '</p><h3>' + r.n + '</h3><p>' + r.m + '</p>';
       if (alt) html += '<p class="res-alt">' + res.getAttribute("data-txt-tambien").replace("{otro}", '<a href="' + datos[alt].u + '">' + datos[alt].n + '</a>') + '</p>';
-      html += '<a class="boton" href="' + r.u + '">' + res.getAttribute("data-txt-ver") + '</a></div>';
+      html += '<div class="acciones">' + (r.r ? '<a class="boton" href="' + r.r + '" rel="noopener">' + res.getAttribute("data-txt-reservar") + '</a>' : '')
+        + '<a class="boton' + (r.r ? ' linea' : '') + '" href="' + r.u + '">' + res.getAttribute("data-txt-ver") + '</a></div></div>';
       res.innerHTML = html; res.hidden = false; otra.hidden = false;
+      if (res.scrollIntoView) res.scrollIntoView({ block: "center", behavior: reducido ? "auto" : "smooth" });
       var s = res.querySelector("svg"); if (s) s.setAttribute("class", "res-baldosa");
     };
     $$(".op", bus).forEach(function (b) {
@@ -307,8 +312,13 @@
   $$("[data-flechas]").forEach(function (f) {
     var sec = f.closest("section"), c = sec && $("[data-arrastre]", sec);
     if (!c) return;
-    // Sin nada que desplazar (todo cabe), las flechas sobran
-    var ver = function () { f.hidden = c.scrollWidth <= c.clientWidth + 2; };
+    // Sin nada que desplazar (todo cabe), las flechas sobran. Se mide en el siguiente fotograma, no al cargar el
+    // script, para no forzar un cálculo de diseño (reflow) antes del primer pintado
+    var pendiente = false;
+    var ver = function () {
+      if (pendiente) return; pendiente = true;
+      requestAnimationFrame(function () { pendiente = false; f.hidden = c.scrollWidth <= c.clientWidth + 2; });
+    };
     ver(); window.addEventListener("resize", ver);
     $$("button", f).forEach(function (b) {
       b.addEventListener("click", function () {
@@ -363,7 +373,7 @@
   /* Conversiones: clic en reservar, teléfono o correo. Solo se envía si Analytics está cargado (cookies aceptadas) */
   d.addEventListener("click", function (ev) {
     var a = ev.target.closest && ev.target.closest("a[href]"); if (!a || typeof window.gtag !== "function") return;
-    var href = a.getAttribute("href"), zona = a.closest(".caja-reserva") ? "ficha" : a.closest("header") ? "cabecera" : a.closest(".final, .final-apts") ? "final" : "otro";
+    var href = a.getAttribute("href"), zona = a.closest(".caja-reserva") ? "ficha" : a.closest("header") ? "cabecera" : a.closest(".final, .final-apts") ? "final" : a.closest(".resultado") ? "buscador" : "otro";
     if (/living4malaga\.com/.test(href) && /utm_content=/.test(href)) {
       var apt = (href.match(/utm_content=([^&]+)/) || [])[1] || "edificio";
       window.gtag("event", "clic_reservar", { apartamento: apt, zona: zona, idioma: lang, transport_type: "beacon" });
@@ -374,13 +384,17 @@
     }
   }, true);
 
-  /* Consentimiento de cookies: no se carga ninguna medición hasta que se acepta */
+  /* Consentimiento de cookies: no se carga ninguna medición hasta que se acepta.
+     El botón «Configurar cookies» del pie vuelve a abrir el aviso para dar o retirar el consentimiento */
   var med = cfg.medicion || {};
   if (!med.ga4 && !med.pixel) return;
   var CLAVE = CONF.cookies;
   var leer = function () { try { return localStorage.getItem(CLAVE); } catch (e) { return null; } };
   var guardar = function (v) { try { localStorage.setItem(CLAVE, v); } catch (e) {} };
+  var cargado = false;
   var cargar = function () {
+    if (med.ga4) window["ga-disable-" + med.ga4] = false;
+    if (cargado) return; cargado = true;
     if (med.ga4) {
       var s = d.createElement("script"); s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + med.ga4; d.head.appendChild(s);
       window.dataLayer = window.dataLayer || []; window.gtag = function () { window.dataLayer.push(arguments); };
@@ -391,18 +405,39 @@
       window.fbq("init", med.pixel); window.fbq("track", "PageView");
     }
   };
-  var estado = leer();
-  if (estado === "si") { cargar(); return; }
-  if (estado === "no") return;
+  // Al retirar el consentimiento: Analytics deja de enviar en esta página y se borran sus cookies (_ga, _ga_XXXX, _gid)
+  // y las de Meta (_fbp, _fbc), en el dominio y en sus dominios superiores, que es donde las pone Google
+  var retirar = function () {
+    if (med.ga4) window["ga-disable-" + med.ga4] = true;
+    if (window.fbq) try { window.fbq("consent", "revoke"); } catch (e) {}
+    var partes = location.hostname.split("."), dominios = [""];
+    for (var k = 0; k < partes.length - 1; k++) dominios.push("; domain=." + partes.slice(k).join("."));
+    d.cookie.split(";").forEach(function (c) {
+      var n = c.split("=")[0].trim();
+      if (!/^(_ga|_gid|_gat|_fbp|_fbc)/.test(n)) return;
+      dominios.forEach(function (dom) { d.cookie = n + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/" + dom; });
+    });
+  };
   var t = lang === "en"
-    ? { txt: (med.pixel ? "Analytics and advertising cookies" : "Analytics cookies") + " only if you accept them.", si: "Accept", no: "Reject", mas: "Cookie policy", url: "legal-notice.html#cookies" }
-    : { txt: (med.pixel ? "Cookies de analítica y publicidad" : "Cookies de analítica") + " solo si las aceptas.", si: "Aceptar", no: "Rechazar", mas: "Política de cookies", url: "aviso-legal.html#cookies" };
-  var caja = d.createElement("div");
-  caja.className = "cookies"; caja.setAttribute("role", "region"); caja.setAttribute("aria-label", "Cookies");
-  caja.innerHTML = "<p>" + t.txt + ' <a href="' + t.url + '">' + t.mas + '</a></p><div class="acciones"><button class="boton linea" data-v="no">' + t.no + '</button><button class="boton" data-v="si">' + t.si + "</button></div>";
-  d.body.appendChild(caja);
-  caja.addEventListener("click", function (ev) {
-    var v = ev.target.getAttribute && ev.target.getAttribute("data-v"); if (!v) return;
-    guardar(v); caja.remove(); if (v === "si") cargar();
-  });
+    ? { txt: (med.pixel ? "Analytics and advertising cookies" : "Analytics cookies") + " only if you accept them.", si: "Accept", no: "Reject", mas: "Cookie policy", url: "/en/legal-notice.html#cookies" }
+    : { txt: (med.pixel ? "Cookies de analítica y publicidad" : "Cookies de analítica") + " solo si las aceptas.", si: "Aceptar", no: "Rechazar", mas: "Política de cookies", url: "/aviso-legal.html#cookies" };
+  var caja = null;
+  var quitarCaja = function () { if (caja && caja.parentNode) caja.parentNode.removeChild(caja); caja = null; };
+  var aviso = function (enfocar) {
+    quitarCaja();
+    caja = d.createElement("div");
+    caja.className = "cookies"; caja.setAttribute("role", "region"); caja.setAttribute("aria-label", "Cookies");
+    caja.innerHTML = "<p>" + t.txt + ' <a href="' + t.url + '">' + t.mas + '</a></p><div class="acciones"><button class="boton linea" data-v="no">' + t.no + '</button><button class="boton" data-v="si">' + t.si + "</button></div>";
+    d.body.appendChild(caja);
+    caja.addEventListener("click", function (ev) {
+      var v = ev.target.getAttribute && ev.target.getAttribute("data-v"); if (!v) return;
+      guardar(v); quitarCaja();
+      if (v === "si") cargar(); else retirar();
+    });
+    if (enfocar) { var b = $('[data-v="' + (leer() === "si" ? "no" : "si") + '"]', caja); if (b) b.focus(); }
+  };
+  $$("[data-cookies-config]").forEach(function (b) { b.addEventListener("click", function () { aviso(true); }); });
+  var estado = leer();
+  if (estado === "si") cargar();
+  else if (estado !== "no") aviso(false);
 })();

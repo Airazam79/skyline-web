@@ -1,7 +1,7 @@
 {
  "name": "Skyline Apartments",
  "short_name": "Skyline",
- "start_url": "index.html",
+ "start_url": "./",
  "display": "browser",
  "background_color": "#002d3a",
  "theme_color": "#002d3a",

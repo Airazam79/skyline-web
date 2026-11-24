@@ -1,3 +1,9 @@
+/* Tipografías (SIL Open Font License, ver assets/fonts). */
+@font-face{font-family:'Playfair Display';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/playfair-display-latin-400-normal.woff2) format('woff2');}
+@font-face{font-family:'Playfair Display';font-style:italic;font-weight:400;font-display:swap;src:url(../fonts/playfair-display-latin-400-italic.woff2) format('woff2');}
+@font-face{font-family:'Playfair Display';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/playfair-display-latin-600-normal.woff2) format('woff2');}
+@font-face{font-family:'Lato';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/lato-latin-400-normal.woff2) format('woff2');}
+@font-face{font-family:'Lato';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/lato-latin-700-normal.woff2) format('woff2');}
 /* Web de edificio — marca Living4Malaga.
    Plantilla común: generar_web.py la copia a assets/css/. Editar aquí, no en assets/. */
 :root {
@@ -96,7 +102,7 @@ ul, ol { margin: 0; }
 .hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; background: var(--noche); overflow: hidden; isolation: isolate; }
 .hero-medio { position: absolute; inset: 0; z-index: -1; }
 .hero-foto, .hero-foto img, .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.hero-foto img { animation: deriva 26s ease-in-out infinite alternate; transform-origin: 60% 30%; object-position: 50% 30%; }
+.hero-foto img { animation: deriva 26s ease-in-out infinite alternate; transform-origin: 60% 30%; object-position: var(--hero-pos, 50% 30%); }   /* encuadre propio de cada edificio: HERO_POS en contenido.py */
 .hero-video { z-index: 1; }
 .hero-medio::after { content: ""; position: absolute; inset: 0; z-index: 2; background: linear-gradient(180deg, rgba(0,31,40,.6) 0%, rgba(0,31,40,0) 18%, rgba(0,31,40,.05) 30%, rgba(0,31,40,.78) 52%, rgba(0,31,40,.96) 76%, #001f28 100%), linear-gradient(90deg, rgba(0,31,40,.55) 0%, rgba(0,31,40,0) 60%); }
 @keyframes deriva { from { transform: scale(1.12) translate3d(1.5%, 0, 0); } to { transform: scale(1.02) translate3d(-1%, -1.5%, 0); } }
@@ -682,6 +688,12 @@ p, li { text-wrap: pretty; }
 @media (min-width: 980px) {
   .ficha .ficha-hero-txt { display: flex; flex-direction: column; }
   .ficha .ficha-hero-txt .acciones { order: 1; }
+  .ficha .ficha-hero-txt .condiciones-cta { order: 1; }   /* justo debajo del botón, como en móvil */
+}
+/* Ordenadores de pantalla baja (1366x768 y similares): la frase de respuesta pasa debajo del botón para que
+   reservar se vea sin bajar; en pantallas altas, el orden de siempre */
+@media (min-width: 980px) and (max-height: 820px) {
+  .ficha .ficha-hero-txt .respuesta { order: 2; }
 }
 /* Guías en móvil: los botones antes del párrafo largo, como en la portada */
 @media (max-width: 959px) {
@@ -693,3 +705,23 @@ p, li { text-wrap: pretty; }
   .hero-texto .acciones { gap: 10px; }
   .hero-texto .acciones .boton { flex: 1 1 auto; padding-inline: 16px; font-size: .95rem; }
 }
+
+/* Condiciones junto al botón de reserva (ficha) y botones del resultado del buscador */
+.condiciones-cta { font-size: .88rem; line-height: 1.4; margin: .6em 0 1.1em; color: var(--gris); }
+.condiciones-cta a { color: inherit; }
+.resultado .acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.resultado { scroll-margin-bottom: 96px; }
+
+/* Fichas con nombre largo (p. ej. Urban Penthouse Terrace): el botón de reserva cabe en la primera pantalla de escritorio */
+.ficha-hero h1.h1-largo { font-size: clamp(2.6rem, 4.6vw, 4rem); }
+/* Tablas de apartamentos en guías: caben a 390 px sin deslizar */
+@media (max-width: 480px) { .guia-tabla:not(.cols) { min-width: 0; table-layout: fixed; } .guia-tabla:not(.cols) th, .guia-tabla:not(.cols) td { padding: 10px 6px; font-size: .8rem; overflow-wrap: anywhere; hyphens: auto; } .guia-tabla:not(.cols) th:first-child { width: 24%; } .guia-tabla:not(.cols) thead th { font-size: .92rem; } }
+
+/* Fecha de revisión de las guías, discreta al final del bloque de entrada (en móvil, después de la respuesta) */
+.guia-revisado { font-size: .82rem; color: var(--gris); margin: 10px 0 0; }
+@media (max-width: 959px) { .guia-hero .ficha-hero-txt .guia-revisado { order: 2; } }
+/* «Configurar cookies» en el pie: con aspecto de enlace; sin JavaScript no hace nada, así que no se enseña */
+.pie-cookies { background: none; border: 0; padding: 0; font: inherit; color: #fff; cursor: pointer; text-align: left; }
+.pie-cookies:hover { color: var(--brasa); }
+html:not(.js) .pie-cookies { display: none; }
+@media (max-width: 900px) { .pie-cookies { padding-block: 11px; } }
